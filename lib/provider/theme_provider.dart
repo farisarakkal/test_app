@@ -25,4 +25,57 @@ class ThemeProvider with ChangeNotifier {
     prefs.setBool('isDarkMode', _isDarkMode); // Save the theme preference
     notifyListeners();
   }
+
+  // Light theme with custom font size
+  ThemeData get lightTheme {
+    return ThemeData(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.purple,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      useMaterial3: true,
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(  // Replaced headline6 with titleLarge
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,  // Set font size to 14
+          fontFamily: 'Roboto',
+        ),
+      ),
+    );
+  }
+
+  // Dark theme with custom font size
+  ThemeData get darkTheme {
+    return ThemeData.dark().copyWith(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.purple,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(  // Replaced headline6 with titleLarge
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,  // Set font size to 14
+          fontFamily: 'Roboto',
+        ),
+      ),
+    );
+  }
 }

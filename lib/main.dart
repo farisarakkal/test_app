@@ -36,16 +36,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ConnectX',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
+      /*theme: ThemeData(
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.purple,
           elevation: 0,
         ),
         useMaterial3: true,
         textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontSize: 16, fontFamily: 'Roboto'),
+          bodyMedium: TextStyle(fontSize: 14, fontFamily: 'Roboto'),
         ),
-      ),
+      ),*/
+      theme: ThemeData.light(),
       darkTheme: ThemeData.dark(), // Optionally define a dark theme
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light, // Apply theme globally
       home: isFirstTime
