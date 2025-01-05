@@ -24,7 +24,7 @@ class _SettingsPageState extends State<SettingsPage> {
     String? savedPath = prefs.getString('download_path');
     if (savedPath == null) {
       // Set default to /storage/emulated/0/Download/ if no saved path is found
-      _downloadPath = '/storage/emulated/0/Download/ConnectX';
+      _downloadPath = '/storage/emulated/0/Download/ConnectX/';
       prefs.setString('download_path', _downloadPath);
     } else {
       _downloadPath = savedPath;

@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initialize() async {
+    await WifiP2PManager.instance.discover();
     _streamPeers = WifiP2PManager.instance.streamPeers().listen((event) {
       setState(() {
         peers = event;
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> {
       });
     });
     // Start discovering peers when the page loads
-    await WifiP2PManager.instance.discover();
+
   }
 
   void _connectToPeer(DiscoveredPeers peer) async {

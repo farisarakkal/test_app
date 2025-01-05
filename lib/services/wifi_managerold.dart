@@ -4,33 +4,25 @@ import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
 class WiFiManager {
   // Singleton instance
   static final WiFiManager _instance = WiFiManager._internal();
-
   // Private constructor
   WiFiManager._internal();
-
   // Factory method for singleton
   factory WiFiManager() {
     return _instance;
   }
-
   // Flutter P2P Connection instance
   final FlutterP2pConnection _p2pConnection = FlutterP2pConnection();
-
   // WiFi P2P state variables
   WifiP2PInfo? wifiP2PInfo;
   List<DiscoveredPeers> peers = [];
   bool isDiscovering = false;
-
   // Stream controllers
   final StreamController<List<DiscoveredPeers>> _peersController = StreamController.broadcast();
-
   // Stream to provide discovered peers
   Stream<List<DiscoveredPeers>> get streamPeers => _peersController.stream;
-
   // Stream subscriptions
   StreamSubscription<WifiP2PInfo>? _streamWifiInfo;
   StreamSubscription<List<DiscoveredPeers>>? _streamPeers;
-
   /// Initialize the WiFi Direct manager
   Future<void> initialize() async {
     await _p2pConnection.initialize();

@@ -45,18 +45,18 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  /*Future<bool> _getConnectionStatus() async {
+  Future<bool> _getConnectionStatus() async {
     return wifiP2PInfo?.isConnected ?? false; // Use null-coalescing operator
   }
 
   Future<bool> _getGroupOwnerStatus() async {
     return wifiP2PInfo?.isGroupOwner ?? false; // Use null-coalescing operator
-  }*/
+  }
 
   Future<void> _checkConnectionAndSocket() async {
     // Fetch connection and group owner status
-    bool isConnected = wifiP2PInfo?.isConnected ?? false;
-    bool isGroupOwner = wifiP2PInfo?.isGroupOwner ?? false;
+    bool isConnected = await _getConnectionStatus(); // Await the connection status
+    bool isGroupOwner = await _getGroupOwnerStatus(); // Await the group owner status
 
     try {
       if (isConnected) {
@@ -220,6 +220,7 @@ class ChatPageState extends State<ChatPage> {
                   icon: Icon(Icons.send),
                   onPressed: () {
                     _sendMessage(_controller.text);
+                    WifiP2PManager.instance.sendStringToSocket(_controller.text);
                   },
                 ),
               ],

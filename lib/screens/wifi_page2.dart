@@ -32,7 +32,6 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     // Initialize the WifiP2PManager instance
     //await WifiP2PManager.instance.initialize();
     //await WifiP2PManager.instance.register();
-
     // Listen to WifiP2PInfo stream
     _streamWifiInfo = WifiP2PManager.instance.streamWifiP2PInfo().listen((event) {
       setState(() {
@@ -70,7 +69,7 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     if (wifiP2PInfo != null) {
       bool started = await WifiP2PManager.instance.startSocket(
         groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
-        downloadPath: "/storage/emulated/0/Download/",
+        downloadPath: "/storage/emulated/0/Download/ConnectX/",
         maxConcurrentDownloads: 2,
         deleteOnError: true,
         onConnect: (name, address) {
@@ -96,7 +95,7 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     if (wifiP2PInfo != null) {
       await WifiP2PManager.instance.connectToSocket(
         groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
-        downloadPath: "/storage/emulated/0/Download/",
+        downloadPath: "/storage/emulated/0/Download/ConnectX/",
         maxConcurrentDownloads: 3,
         deleteOnError: true,
         onConnect: (address) {
