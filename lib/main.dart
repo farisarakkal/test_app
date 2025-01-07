@@ -60,10 +60,10 @@ class MyApp extends StatelessWidget {
 
 class WiFiManagerService {
   static Future<void> initializeWiFiManager() async {
-    await WifiP2PManager.instance.initialize();
-    await WifiP2PManager.instance.register();
+    WifiP2PManager.instance.initialize();
+    WifiP2PManager.instance.register();
     WifiP2PManager.instance.closeSocket();
-    await WifiP2PManager.instance.removeGroup();
+    WifiP2PManager.instance.removeGroup();
   }
 }
 
