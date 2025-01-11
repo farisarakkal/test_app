@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
           ? const FirstTimeLoginPage()
           //: const MyHomePage(title: 'ConnectX'),
           : HomePage(),
-          //: WifiPage2(),
     );
   }
 }
