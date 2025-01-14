@@ -8,11 +8,13 @@ import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
 class ChatPage extends StatefulWidget {
   final String deviceName;
   final String deviceAddress;
+  final WifiP2PInfo? wifiP2PInfo; // Add wifiP2PInfo to the constructor
 
   const ChatPage({
     super.key,
     required this.deviceName,
     required this.deviceAddress,
+    this.wifiP2PInfo, // Accept wifiP2PInfo in the constructor
   });
 
   @override
@@ -23,7 +25,6 @@ class ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   List<ChatMessage> _messages = [];
   final ChatStorage _chatStorage = ChatStorage();
-  WifiP2PInfo? wifiP2PInfo;
   List<DiscoveredPeers> peers = [];
   StreamSubscription<WifiP2PInfo>? _streamWifiInfo;
   StreamSubscription<List<DiscoveredPeers>>? _streamPeers;
@@ -38,19 +39,20 @@ class ChatPageState extends State<ChatPage> {
 
   void _init() async {
     // Listen to WifiP2PInfo stream
-    _streamWifiInfo = WifiP2PManager.instance.streamWifiP2PInfo().listen((event) {
+    if (widget.wifiP2PInfo != null) {
       setState(() {
-        wifiP2PInfo = event; // Assuming wifiP2PInfo is a member variable
+        // Example: Use the passed wifiP2PInfo
+        snack("Received WiFiP2PInfo: ${widget.wifiP2PInfo}");
       });
-    });
+    }
   }
 
   Future<bool> _getConnectionStatus() async {
-    return wifiP2PInfo?.isConnected ?? false; // Use null-coalescing operator
+    return widget.wifiP2PInfo?.isConnected ?? false; // Use null-coalescing operator
   }
 
   Future<bool> _getGroupOwnerStatus() async {
-    return wifiP2PInfo?.isGroupOwner ?? false; // Use null-coalescing operator
+    return widget.wifiP2PInfo ?.isGroupOwner ?? false; // Use null-coalescing operator
   }
 
   Future<void> _checkConnectionAndSocket() async {
@@ -100,9 +102,9 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Future startSocket() async {
-    if (wifiP2PInfo != null) {
+    if (widget.wifiP2PInfo != null) {
       bool started = await WifiP2PManager.instance.startSocket(
-        groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
+        groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
         downloadPath: "/storage/emulated/0/Download/",
         maxConcurrentDownloads: 2,
         deleteOnError: true,
@@ -126,9 +128,9 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Future connectToSocket() async {
-    if (wifiP2PInfo != null) {
+    if (widget.wifiP2PInfo != null) {
       await WifiP2PManager.instance.connectToSocket(
-        groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
+        groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
         downloadPath: "/storage/emulated/0/Download/",
         maxConcurrentDownloads: 3,
         deleteOnError: true,

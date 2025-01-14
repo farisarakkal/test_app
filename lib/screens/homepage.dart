@@ -158,6 +158,7 @@ class _HomePageState extends State<HomePage> {
                                   builder: (context) => ChatPage(
                                     deviceName: connectedDevices[index].deviceName,
                                     deviceAddress: connectedDevices[index].deviceAddress,
+                                    wifiP2PInfo: wifiP2PInfo,
                                   ),
                                 ),
                               );
