@@ -120,7 +120,14 @@ class ChatPageState extends State<ChatPage> {
               "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
         },
         receiveString: (req) async {
-          snack(req);
+          // Create a new message object for the received message
+          ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
+          // Add the received message to the list and update the state
+          setState(() {
+            _messages.add(receivedMessage);
+          });
+          // Save the updated chat list to local storage
+          await _chatStorage.saveChat(widget.deviceAddress, _messages);
         },
       );
       snack("open socket: $started");
@@ -147,7 +154,14 @@ class ChatPageState extends State<ChatPage> {
               "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
         },
         receiveString: (req) async {
-          snack(req);
+          // Create a new message object for the received message
+          ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
+          // Add the received message to the list and update the state
+          setState(() {
+            _messages.add(receivedMessage);
+          });
+          // Save the updated chat list to local storage
+          await _chatStorage.saveChat(widget.deviceAddress, _messages);
         },
       );
     }
@@ -233,7 +247,3 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 }
-
-
-
-
