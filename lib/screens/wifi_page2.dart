@@ -331,6 +331,43 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     );
   }
 
+  void showPeerDetailsDialog(BuildContext context, DiscoveredPeers peer) {
+    showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: AlertDialog(
+          content: SizedBox(
+            height: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("name: ${peer.deviceName}"),
+                Text("address: ${peer.deviceAddress}"),
+                Text("isGroupOwner: ${peer.isGroupOwner}"),
+                Text("isServiceDiscoveryCapable: ${peer.isServiceDiscoveryCapable}"),
+                Text("primaryDeviceType: ${peer.primaryDeviceType}"),
+                Text("secondaryDeviceType: ${peer.secondaryDeviceType}"),
+                Text("status: ${peer.status}"),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                bool? connected = await WifiP2PManager.instance.connect(peer.deviceAddress);
+                snack("Connected: $connected");
+              },
+              child: const Text("Connect"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -360,79 +397,34 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
                   : const SizedBox.shrink(),
               const SizedBox(height: 10),
               const Text("PEERS:"),
-              SizedBox(
-                height: 100,
-                width: MediaQuery.of(context).size.width,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: peers.length,
-                  itemBuilder: (context, index) => Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => Center(
-                            child: AlertDialog(
-                              content: SizedBox(
-                                height: 200,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("name: ${peers[index].deviceName}"),
-                                    Text(
-                                        "address: ${peers[index].deviceAddress}"),
-                                    Text(
-                                        "isGroupOwner: ${peers[index].isGroupOwner}"),
-                                    Text(
-                                        "isServiceDiscoveryCapable: ${peers[index].isServiceDiscoveryCapable}"),
-                                    Text(
-                                        "primaryDeviceType: ${peers[index].primaryDeviceType}"),
-                                    Text(
-                                        "secondaryDeviceType: ${peers[index].secondaryDeviceType}"),
-                                    Text("status: ${peers[index].status}"),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    bool? bo = await WifiP2PManager.instance.connect(peers[index].deviceAddress);
-                                    snack("connected: $bo");
-                                  },
-                                  child: const Text("connect"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 80,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Center(
-                          child: Text(
-                            peers[index]
-                                .deviceName
-                                .toString()
-                                .characters
-                                .first
-                                .toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                            ),
-                          ),
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true, // Allows the ListView to adjust height dynamically
+                physics: const NeverScrollableScrollPhysics(), // Disables inner scrolling
+                itemCount: peers.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Text(
+                          peers[index].deviceName[0].toUpperCase(), // First letter of device name
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
+                      title: Text(peers[index].deviceName),
+                      subtitle: Text("Address: ${peers[index].deviceAddress}"),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.info_outline),
+                        onPressed: () {
+                          showPeerDetailsDialog(context, peers[index]);
+                        },
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
               TextField(
                 controller: msgText,
