@@ -1,4 +1,4 @@
-package com.example.test_app
+package com.example.connectx
 
 import android.Manifest
 import android.content.pm.PackageManager
