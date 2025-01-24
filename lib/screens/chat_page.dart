@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../services/chat_storage.dart';
@@ -144,7 +146,7 @@ class ChatPageState extends State<ChatPage> {
     if (widget.wifiP2PInfo != null) {
       await WifiP2PManager.instance.connectToSocket(
         groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
-        downloadPath: "/storage/emulated/0/Download/",
+        downloadPath: "/storage/emulated/0/Download/ConnectX/",
         maxConcurrentDownloads: 3,
         deleteOnError: true,
         onConnect: (address) {
@@ -188,6 +190,25 @@ class ChatPageState extends State<ChatPage> {
         ),
       ),
     );
+  }
+
+  Future sendFile(bool phone) async {
+    String? filePath = await FilesystemPicker.open(
+      context: context,
+      rootDirectory: Directory(phone ? "/storage/emulated/0/" : "/storage/"),
+      fsType: FilesystemType.file,
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+      showGoUp: true,
+      folderIconColor: Colors.blue,
+    );
+    if (filePath == null) return;
+    List<TransferUpdate>? updates =
+    await WifiP2PManager.instance.sendFiletoSocket(
+      [
+        filePath,
+      ],
+    );
+    print(updates);
   }
 
   void snack(String msg) async {
@@ -251,23 +272,34 @@ class ChatPageState extends State<ChatPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(hintText: 'Type a message'),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.attach_file),
+                    onPressed: () async {
+                      // Open file picker and send the selected file
+                      await sendFile(true);  // Pass the flag based on your conditions
+                    },
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    _sendMessage(_controller.text);
-                    WifiP2PManager.instance.sendStringToSocket(_controller.text);
-                  },
-                ),
-              ],
-            ),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Type a message',
+                        border: InputBorder.none,  // Removes the default border
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      _sendMessage(_controller.text);
+                      WifiP2PManager.instance.sendStringToSocket(_controller.text);
+                    },
+                  ),
+                ],
+              )
+
           ),
         ],
       ),
