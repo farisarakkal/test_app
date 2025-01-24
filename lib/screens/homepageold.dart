@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
-import 'wifi_page.dart';  // Import WifiPage
+//import 'wifi_page.dart';  // Import WifiPage
 import '../widgets/drawer.dart';  // Import CustomDrawer
 import '../services/wifi_managerold.dart';  // Import WiFiManager for managing peers
 
@@ -59,19 +59,6 @@ class MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.wifi),
-            onPressed: () async {
-              // Navigate to WifiPage (optional functionality)
-              final List<DiscoveredPeers> peers = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const WifiPage()),
-              );
-              setState(() {
-                _discoveredPeers = peers;
-              });
-            },
-          ),
         ],
       ),
       body: _discoveredPeers.isEmpty
