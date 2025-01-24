@@ -5,6 +5,8 @@ import '../services/wifi_p2p_manager.dart';
 import 'dart:async';
 import 'package:filesystem_picker/filesystem_picker.dart';
 
+import 'chat_page.dart';
+
 class WifiPage2 extends StatefulWidget {
   const WifiPage2({super.key});
 
@@ -422,6 +424,25 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
                           showPeerDetailsDialog(context, peers[index]);
                         },
                       ),
+                      onTap: () async {
+                        // Attempt to connect to the device
+                        bool? connected = await WifiP2PManager.instance.connect(peers[index].deviceAddress);
+                        if (connected == true) {
+                          // If connected, navigate to the chat page
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                deviceName: peers[index].deviceName,
+                                deviceAddress: peers[index].deviceAddress,
+                                wifiP2PInfo: wifiP2PInfo,
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Show a snackbar if the connection fails
+                          snack("Failed to connect to ${peers[index].deviceName}");
+                        }
+                      },
                     ),
                   );
                 },

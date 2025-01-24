@@ -28,6 +28,8 @@ class ChatPageState extends State<ChatPage> {
   List<DiscoveredPeers> peers = [];
   StreamSubscription<WifiP2PInfo>? _streamWifiInfo;
   StreamSubscription<List<DiscoveredPeers>>? _streamPeers;
+  String socketStatus = 'Socket inactive';
+
 
   @override
   void initState() {
@@ -110,6 +112,10 @@ class ChatPageState extends State<ChatPage> {
         deleteOnError: true,
         onConnect: (name, address) {
           snack("$name connected to socket with address: $address");
+          setState(() {
+            socketStatus = 'Socket active';  // Update socket status when connected
+          });
+          WifiP2PManager.instance.sendStringToSocket('Socket active');
         },
         transferUpdate: (transfer) {
           if (transfer.completed) {
@@ -154,15 +160,21 @@ class ChatPageState extends State<ChatPage> {
               "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
         },
         receiveString: (req) async {
-          // Create a new message object for the received message
-          ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
-          // Add the received message to the list and update the state
-          setState(() {
-            _messages.add(receivedMessage);
-          });
-          // Save the updated chat list to local storage
-          await _chatStorage.saveChat(widget.deviceAddress, _messages);
-        },
+          if (req == "Socket active") {
+            // Update the AppBar subtitle to indicate the socket is active
+            setState(() {
+              socketStatus = "Socket active";  // This will update the subtitle in the AppBar
+            });
+          } else {
+            // For regular messages, create a new message object and add it to the list
+            ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
+            setState(() {
+              _messages.add(receivedMessage);
+            });
+            // Save the updated chat list to local storage
+            await _chatStorage.saveChat(widget.deviceAddress, _messages);
+          }
+        }
       );
     }
   }
@@ -193,7 +205,22 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.deviceName),
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 11.0), // Raise title by 8 pixels
+          child: Text(widget.deviceName),
+        ),
+        flexibleSpace: Align(
+          alignment: Alignment.bottomLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 72.0, bottom: 3.0),
+            child: Text(
+              socketStatus,
+              style: TextStyle(
+                fontSize: 13, // Smaller font size for subtitle
+              ),
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [
