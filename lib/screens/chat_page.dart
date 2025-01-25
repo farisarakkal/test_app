@@ -109,7 +109,7 @@ class ChatPageState extends State<ChatPage> {
     if (widget.wifiP2PInfo != null) {
       bool started = await WifiP2PManager.instance.startSocket(
         groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
-        downloadPath: "/storage/emulated/0/Download/",
+        downloadPath: "/storage/emulated/0/Download/ConnectX/",
         maxConcurrentDownloads: 2,
         deleteOnError: true,
         onConnect: (name, address) {

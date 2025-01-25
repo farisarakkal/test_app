@@ -4,7 +4,7 @@ import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
 import '../services/wifi_p2p_manager.dart';
 import 'dart:async';
 import 'package:filesystem_picker/filesystem_picker.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 import 'chat_page.dart';
 
 class WifiPage2 extends StatefulWidget {
@@ -148,11 +148,6 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     await WifiP2PManager.instance.sendFiletoSocket(
       [
         filePath,
-        // "/storage/emulated/0/Download/Likee_7100105253123033459.mp4",
-        // "/storage/0E64-4628/Download/Adele-Set-Fire-To-The-Rain-via-Naijafinix.com_.mp3",
-        // "/storage/0E64-4628/Flutter SDK/p2p_plugin.apk",
-        // "/storage/emulated/0/Download/03 Omah Lay - Godly (NetNaija.com).mp3",
-        // "/storage/0E64-4628/Download/Adele-Set-Fire-To-The-Rain-via-Naijafinix.com_.mp3",
       ],
     );
     print(updates);
@@ -369,13 +364,24 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     );
   }
 
+  Future<void> requestManageAllFilesPermissionAndSendFile() async {
+    // Request permission to manage all files (MANAGE_EXTERNAL_STORAGE)
+    PermissionStatus status = await Permission.manageExternalStorage.request();
+
+    if (status.isGranted) {
+      await sendFile(true);
+    } else {
+      print('Permission denied to manage all files.');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wifi Direct Connection'),
+        title: const Text('ConnectX'),
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert),
@@ -447,6 +453,9 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
                   );
                 },
               ),
+              const SizedBox(height: 40), // Adds space between sections
+              const Text('SAVED CHATS:'),
+              const SizedBox(height: 40),
               TextField(
                 controller: msgText,
                 decoration: const InputDecoration(
@@ -461,7 +470,7 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
               ),
               ElevatedButton(
                 onPressed: () async {
-                  await sendFile(true);
+                  await requestManageAllFilesPermissionAndSendFile();
                 },
                 child: const Text("Send File"),
               ),
