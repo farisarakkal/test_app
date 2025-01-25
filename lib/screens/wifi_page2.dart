@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/wifi_p2p_manager.dart';
 import 'dart:async';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'chat_page.dart';
+import '../services/device_info_storage.dart';
+import '../models/device_model.dart';
 
 class WifiPage2 extends StatefulWidget {
   const WifiPage2({super.key});
@@ -16,6 +19,8 @@ class WifiPage2 extends StatefulWidget {
 
 class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,AutomaticKeepAliveClientMixin{
   final TextEditingController msgText = TextEditingController();
+  final DeviceStorage _deviceStorage = DeviceStorage(); // Instantiate DeviceStorage
+  late Future<List<Device>> savedDevices;
   //final WifiP2PManager _wifiP2PManager = WifiP2PManager();
   WifiP2PInfo? wifiP2PInfo;
   List<DiscoveredPeers> peers = [];
@@ -27,6 +32,7 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     super.initState();
     // WifiP2PManager.instance.initialize();
     WidgetsBinding.instance.addObserver(this);
+    savedDevices = _deviceStorage.loadSavedDevices();
     _init();
   }
 
@@ -65,6 +71,15 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     } else if (state == AppLifecycleState.resumed) {
       WifiP2PManager.instance.register();
     }
+  }
+
+
+  Future<void> saveOrCheckDevice(String deviceName, String deviceAddress) async {
+    await _deviceStorage.saveOrCheckDevice(deviceName, deviceAddress);
+    setState(() {
+      // Reload the saved devices after a new device is saved
+      savedDevices = _deviceStorage.loadSavedDevices();
+    });
   }
 
   Future startSocket() async {
@@ -375,6 +390,15 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
     }
   }
 
+  Future<List<Device>> loadSavedDevices() async {
+    final prefs = await SharedPreferences.getInstance();
+    final devicesJson = prefs.getStringList('savedDevices') ?? [];
+
+    return devicesJson.map((deviceString) {
+      final deviceData = deviceString.split(',');
+      return Device(deviceName: deviceData[0], deviceAddress: deviceData[1]);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +468,7 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
                               ),
                             ),
                           );
+                          saveOrCheckDevice(peers[index].deviceName, peers[index].deviceAddress);
                         } else {
                           // Show a snackbar if the connection fails
                           snack("Failed to connect to ${peers[index].deviceName}");
@@ -456,6 +481,56 @@ class _WifiPage2State extends State<WifiPage2> with WidgetsBindingObserver,Autom
               const SizedBox(height: 40), // Adds space between sections
               const Text('SAVED CHATS:'),
               const SizedBox(height: 40),
+              FutureBuilder<List<Device>>(
+                future: savedDevices,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading saved devices'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No saved devices'));
+                  } else {
+                    return ListView.builder(
+                      shrinkWrap: true, // Allows the ListView to adjust height dynamically
+                      physics: const NeverScrollableScrollPhysics(), // Disables inner scrolling
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        Device device = snapshot.data![index];
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              child: Text(
+                                device.deviceName[0].toUpperCase(), // First letter of device name
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            title: Text(device.deviceName),  // Device name as the title
+                            subtitle: Text(device.deviceAddress),
+                            onTap: () {
+                              // Navigate to the ChatPage with the selected device details
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatPage(
+                                    deviceName: device.deviceName,
+                                    deviceAddress: device.deviceAddress,
+                                    wifiP2PInfo: wifiP2PInfo,
+                                  ),
+                                ),
+                              );
+                            },// Device address as the subtitle
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+
               TextField(
                 controller: msgText,
                 decoration: const InputDecoration(
