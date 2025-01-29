@@ -119,7 +119,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2)
             Manifest.permission.NEARBY_WIFI_DEVICES
         else
             Manifest.permission.ACCESS_FINE_LOCATION
