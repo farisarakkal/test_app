@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../models/chat_message.dart';
 import '../services/chat_storage.dart';
 import '../services/wifi_p2p_manager.dart';
@@ -145,38 +146,38 @@ class ChatPageState extends State<ChatPage> {
   Future connectToSocket() async {
     if (widget.wifiP2PInfo != null) {
       await WifiP2PManager.instance.connectToSocket(
-        groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
-        downloadPath: "/storage/emulated/0/Download/ConnectX/",
-        maxConcurrentDownloads: 3,
-        deleteOnError: true,
-        onConnect: (address) {
-          snack("connected to socket: $address");
-        },
-        transferUpdate: (transfer) {
-          // if (transfer.count == 0) transfer.cancelToken?.cancel();
-          if (transfer.completed) {
-            snack(
-                "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
+          groupOwnerAddress: widget.wifiP2PInfo!.groupOwnerAddress,
+          downloadPath: "/storage/emulated/0/Download/ConnectX/",
+          maxConcurrentDownloads: 3,
+          deleteOnError: true,
+          onConnect: (address) {
+            snack("connected to socket: $address");
+          },
+          transferUpdate: (transfer) {
+            // if (transfer.count == 0) transfer.cancelToken?.cancel();
+            if (transfer.completed) {
+              snack(
+                  "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
+            }
+            print(
+                "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
+          },
+          receiveString: (req) async {
+            if (req == "Socket active") {
+              // Update the AppBar subtitle to indicate the socket is active
+              setState(() {
+                socketStatus = "Socket active";  // This will update the subtitle in the AppBar
+              });
+            } else {
+              // For regular messages, create a new message object and add it to the list
+              ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
+              setState(() {
+                _messages.add(receivedMessage);
+              });
+              // Save the updated chat list to local storage
+              await _chatStorage.saveChat(widget.deviceAddress, _messages);
+            }
           }
-          print(
-              "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
-        },
-        receiveString: (req) async {
-          if (req == "Socket active") {
-            // Update the AppBar subtitle to indicate the socket is active
-            setState(() {
-              socketStatus = "Socket active";  // This will update the subtitle in the AppBar
-            });
-          } else {
-            // For regular messages, create a new message object and add it to the list
-            ChatMessage receivedMessage = ChatMessage(sender: 'Other', message: req);
-            setState(() {
-              _messages.add(receivedMessage);
-            });
-            // Save the updated chat list to local storage
-            await _chatStorage.saveChat(widget.deviceAddress, _messages);
-          }
-        }
       );
     }
   }
@@ -209,6 +210,17 @@ class ChatPageState extends State<ChatPage> {
       ],
     );
     print(updates);
+  }
+
+  Future<void> requestManageAllFilesPermissionAndSendFile() async {
+    // Request permission to manage all files (MANAGE_EXTERNAL_STORAGE)
+    PermissionStatus status = await Permission.manageExternalStorage.request();
+
+    if (status.isGranted) {
+      await sendFile(true);
+    } else {
+      print('Permission denied to manage all files.');
+    }
   }
 
   void snack(String msg) async {
@@ -271,14 +283,14 @@ class ChatPageState extends State<ChatPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   IconButton(
                     icon: Icon(Icons.attach_file),
                     onPressed: () async {
                       // Open file picker and send the selected file
-                      await sendFile(true);  // Pass the flag based on your conditions
+                      await requestManageAllFilesPermissionAndSendFile();
                     },
                   ),
                   Expanded(
