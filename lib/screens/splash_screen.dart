@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
+import 'first_time_login.dart'; // Import FirstTimeLoginPage
 
 class SplashScreen extends StatefulWidget {
   final bool isFirstTime;
@@ -14,10 +15,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(
+          builder: (context) =>
+          widget.isFirstTime ? FirstTimeLoginPage() : HomePage(),
+        ),
       );
     });
   }
@@ -25,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0A3D62), // Deep Navy Blue
+      backgroundColor: const Color(0xFF0A3D62), // Deep Navy Blue
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -41,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontFamily: 'Times New Roman',
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,  // Text in White
+                color: Colors.white, // Text in White
               ),
             ),
             const SizedBox(height: 10),
@@ -50,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
               style: TextStyle(
                 fontSize: 14,
                 color: Color(0xFFE0E6ED), // Light Steel Blue - Soft and elegant
-
                 fontStyle: FontStyle.italic,
               ),
             ),
