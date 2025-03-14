@@ -5,20 +5,21 @@ import '../screens/homepage.dart';
 import 'screens/first_time_login.dart';
 import 'provider/theme_provider.dart';
 import '../services/wifi_p2p_manager.dart';
+import 'screens/splash_screen.dart';
+import 'screens/homepage.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await WiFiManager().initialize();
-  // Load shared preferences and first-time login check
+
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
   await WiFiManagerService.initializeWiFiManager();
 
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeProvider(), // Provide ThemeProvider to the widget tree
-      child: MyApp(isFirstTime: isFirstTime),
+      create: (context) => ThemeProvider(),
+      child: MyApp(isFirstTime: isFirstTime), // Correct placement for 'home'
     ),
   );
 }
@@ -49,10 +50,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(), // Optionally define a dark theme
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light, // Apply theme globally
-      home: isFirstTime
-          ? const FirstTimeLoginPage()
-          //: const MyHomePage(title: 'ConnectX'),
-          : HomePage(),
+      home: SplashScreen(isFirstTime: isFirstTime), // Set the splash screen as the first screen,
     );
   }
 }
@@ -65,4 +63,3 @@ class WiFiManagerService {
     WifiP2PManager.instance.removeGroup();
   }
 }
-
